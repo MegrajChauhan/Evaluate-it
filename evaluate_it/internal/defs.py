@@ -4,8 +4,7 @@
 
 import enum
 
-class TokenType(enum.Enum):
-    TOK_ERROR = 255
+class TokenType(enum.IntEnum):
     TOK_INT = 0
     TOK_FLOAT = 1
     TOK_PLUS = 2
@@ -13,6 +12,8 @@ class TokenType(enum.Enum):
     TOK_DIV = 4
     TOK_MUL = 5
     TOK_MOD = 6
+    TOK_ERROR = 255
+    TOK_EOF = 256
 
 class NodeKind(enum.Enum):
     pass
