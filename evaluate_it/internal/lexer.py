@@ -1,5 +1,5 @@
-from internal.report import log_err, log, format_string_for_highlight
-from colorama import Fore, Style
+from internal.report import log_err, format_string_for_highlight
+from colorama import Fore
 from internal.defs import *
 import internal.config as config
 
@@ -10,8 +10,13 @@ class Token:
         self.col_ed = col_ed
         self.token_value = token_value
     
+    # In case of sub expressions, we replace the entire sub expression with an AST
+    # This will do just that
+    def make_token_sub_expr(self, __ast__) -> None:
+        self.tree = __ast__
+    
     def __str__(self) -> str:
-        if self.type >= TokenType.TOK_PLUS and self.type <= TokenType.TOK_MOD:
+        if self.type >= TokenType.TOK_PLUS and self.type <= TokenType.TOK_CPAREN:
             return f"Token Identified Operator"
         return f"Token Identified: {self.token_value}"
 
@@ -24,7 +29,9 @@ class Lexer:
         self.input_expr = input_expr
         self.token_list: list[Token] = []
         self.expr_len = len(self.input_expr)
-        self.curr: str = self.input_expr[0]
+        self.curr: str = ''
+        if len(input_expr) > 0:
+            self.curr = self.input_expr[0]
     
     def update(self) -> None:
         if (self.col+1) >= self.expr_len:
@@ -34,7 +41,7 @@ class Lexer:
         self.curr = self.input_expr[self.col]
     
     def obtain_digit(self) -> bool:
-        log("Found a NUMBER TOKEN")
+        config.log("Found a NUMBER TOKEN")
         number_token: Token = Token()
         number_token.col_st = self.col
         
@@ -47,7 +54,7 @@ class Lexer:
             if dot_count > 1:
                 log_err("Invalid floating-point value", format_string_for_highlight(self.input_expr, number_token.col_st, self.col, Fore.RED))
                 if config.global_config.strict_crash:
-                    log("Terminating Lexing....")
+                    config.log("Terminating Lexing....")
                     exit(-1)
                 else:
                     return False
@@ -60,17 +67,17 @@ class Lexer:
             number_token.type = TokenType.TOK_INT
         number_token.col_ed = self.col
         self.token_list.append(number_token)
-        log(f"Found NUMBER TOKEN with VALUE: {number_token.token_value}")
+        config.log(f"Found NUMBER TOKEN with VALUE: {number_token.token_value}")
         return True
     
     def handle_error(self) -> None:
-        log("Error while Lexing....")
+        config.log("Error while Lexing....")
         if config.global_config.strict_crash:
-            log("Terminating Lexing....")
+            config.log("Terminating Lexing....")
             exit(-1)
         elif not config.global_config.found_error_already:
             config.global_config.found_error_already = True
-            log("LEXING ERROR DETECTED(Parsing Aborted)")
+            config.log("LEXING ERROR DETECTED(Parsing Aborted)")
     
     def lex_all_tokens(self) -> bool:
         while True:
@@ -82,7 +89,7 @@ class Lexer:
             if self.curr.isdigit():
                 if (not self.obtain_digit()) and (not config.global_config.found_error_already):
                     config.global_config.found_error_already = True
-                    log("LEXING ERROR DETECTED(Parsing Aborted)")
+                    config.log("LEXING ERROR DETECTED(Parsing Aborted)")
             else:
                 # For now, we will use match cases to identify the operators
                 current_token.col_st = self.col # we don't really need this info for operators
@@ -97,6 +104,10 @@ class Lexer:
                         current_token.type = TokenType.TOK_DIV
                     case '%':
                         current_token.type = TokenType.TOK_MOD
+                    case '(':
+                        current_token.type = TokenType.TOK_OPAREN
+                    case ')':
+                        current_token.type = TokenType.TOK_CPAREN
                     case _:
                         log_err(f"Invalid Token '{self.curr}' found", self.input_expr)
                         self.handle_error()

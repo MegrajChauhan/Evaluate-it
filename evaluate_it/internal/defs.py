@@ -12,8 +12,11 @@ class TokenType(enum.IntEnum):
     TOK_DIV = 4
     TOK_MUL = 5
     TOK_MOD = 6
+    TOK_OPAREN=7
+    TOK_CPAREN=8
     TOK_ERROR = 255
     TOK_EOF = 256
+    TOK_SUB_EXPR = 257
 
 class NodeKind(enum.Enum):
     pass

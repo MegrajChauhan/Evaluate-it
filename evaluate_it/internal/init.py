@@ -1,7 +1,7 @@
 from colorama import init
 import internal.config as config
 import internal.report as report
-import internal.lexer as lexer
+import internal.parser as parser
 import os
 
 """
@@ -14,7 +14,7 @@ def evaluate_it_init(_in_debug_mode: bool, _be_verbose: bool, strictly_crash: bo
     config.global_config.in_debug_state = _in_debug_mode
     config.global_config.strict_crash = strictly_crash
     config.global_config.verbose = _be_verbose
-    report.report_init()
+    config.report_init()
     
 def print_terminal_io_start_info() -> None:
     print("Welcome to Evaluate It!")
@@ -31,10 +31,7 @@ def evaluate_it() -> None:
             elif expr == "clear":
                 os.system("clear")
                 continue
-            evaluate_it_lexer = lexer.Lexer(expr) 
-            if not evaluate_it_lexer.lex_all_tokens():
+            evaluate_it_parser = parser.Parser(expr)
+            if not evaluate_it_parser.parse():
+                report.log_err("Terminating...", expr)
                 exit(-1)
-            # Move on to the next step
-            all_tokens = evaluate_it_lexer.get_tokens_list()
-            for token in all_tokens:
-                print(token)

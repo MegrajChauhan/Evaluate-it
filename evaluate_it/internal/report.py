@@ -23,13 +23,4 @@ def log_err(err_msg: str, input_line: str) -> None:
 
 def useless_log(msg: str) -> None:
     pass
-
-"""
-  If verbosity is enabled, we use the default function else the useless function
-"""
-log = log_msg
-
-def report_init() -> None:
-    if not config.global_config.verbose or not config.global_config.in_debug_state:
-        log = useless_log
     

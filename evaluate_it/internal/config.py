@@ -2,6 +2,8 @@
 Define some configurable vairables that define the state of the module
 """
 
+import internal.report as report
+
 class Config:
     in_debug_state = False      # Is the module in Debug state?
     verbose = False             # Should the module be verbose?
@@ -10,3 +12,13 @@ class Config:
     found_error_already = False # Has any error been encountered already? Propagate the message to the entire module
     
 global_config = Config()
+
+"""
+  If verbosity is enabled, we use the default function else the useless function
+"""
+log = report.log_msg
+
+def report_init() -> None:
+    global log
+    if not global_config.verbose and not global_config.in_debug_state:
+        log = report.useless_log
