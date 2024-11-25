@@ -16,7 +16,7 @@ def format_string_for_highlight(line:str, col_st: int, col_ed: int, color:ansi.A
     result += line[col_ed:]             
     return result
 
-def log_err(err_msg: str, input_line: str) -> None:
+def log_err(err_msg: str, input_line: str='') -> None:
     print(f"\n{Fore.RED}ERROR:{Style.RESET_ALL} {err_msg}{"\n\t" + input_line if len(input_line) > 0 else ""}\n")
     if config.global_config.strict_crash:
         exit()

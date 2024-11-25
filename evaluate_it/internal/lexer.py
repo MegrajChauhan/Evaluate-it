@@ -86,7 +86,10 @@ class Lexer:
                 current_token.type = TokenType.TOK_EOF
                 self.token_list.append(current_token)
                 break
-            if self.curr.isdigit():
+            if self.curr.isspace():
+                while self.curr.isspace():
+                    self.update()
+            elif self.curr.isdigit():
                 if (not self.obtain_digit()) and (not config.global_config.found_error_already):
                     config.global_config.found_error_already = True
                     config.log("LEXING ERROR DETECTED(Parsing Aborted)")
